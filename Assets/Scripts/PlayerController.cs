@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 [System.Serializable]
 public class AxleInfo
 {
     public WheelCollider leftWheel;
     public WheelCollider rightWheel;
-    public bool motor; //is this wheel attached to motor?
-    public bool steering; // does this wheel apply steer angle?
+    public bool isMotor; //is this wheel attached to motor?
+    public bool isSteering; // does this wheel apply steer angle?
 }
 
 public class PlayerController : MonoBehaviour
@@ -17,6 +18,13 @@ public class PlayerController : MonoBehaviour
     public List<AxleInfo> axleInfos; //the information about each individual axle
     public float maxMotorTorque; // maximum torque  the motor can apply to wheel
     public float maxSteeringAngle; // maximum steer angle the wheel can have
+
+    [SerializeField] TextMeshProUGUI speedometerText;
+    [SerializeField] TextMeshProUGUI rpmText;
+
+    [SerializeField] private float speed;
+    [SerializeField] private float rpm;
+
 
 
     private Rigidbody playerRb;
@@ -54,14 +62,20 @@ public class PlayerController : MonoBehaviour
         float motor = maxMotorTorque * Input.GetAxis("Vertical");
         float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
 
+        speed = Mathf.Round(playerRb.velocity.magnitude * 3.6f);
+        speedometerText.SetText("Speed: " + speed + " kph");
+
+        rpm = (speed % 30) * 40;
+        rpmText.SetText("RPM: " + rpm);
+
         foreach (AxleInfo axleInfo in axleInfos)
         {
-            if (axleInfo.steering)
+            if (axleInfo.isSteering)
             {
                 axleInfo.leftWheel.steerAngle = steering;
                 axleInfo.rightWheel.steerAngle = steering;
             }
-            if (axleInfo.motor)
+            if (axleInfo.isMotor)
             {
                 axleInfo.leftWheel.motorTorque = motor;
                 axleInfo.rightWheel.motorTorque = motor;
